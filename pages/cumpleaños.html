@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>La agenda | No te cuelgues</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="../javascript/script.js" defer></script>
+</head>
+<body>
+    <header class="encabezado">
+        <span class="etiqueta">LOS CUMPLES DE LA BANDA</span>
+        <h1>Cada cumple <span>cuenta.</span></h1>
+        <p>El próximo saludo empieza acá. Mirá quién cumple y cuánto falta.</p>
+
+        <a class="boton-enlace" href="../index.html">
+            Anotá tu cumple 🎂
+        </a>
+    </header>
+
+    <main class="contenedor contenedor-agenda">
+        <section class="cumpleaños" aria-labelledby="titulo-cumpleaños">
+            <h2 id="titulo-cumpleaños">Se vienen estos cumples 🎉</h2>
+            <p>Del más cercano al más lejano, para que no se te pase ninguno.</p>
+
+            <div id="lista-cumpleaños" class="lista-cumpleaños">
+                <p class="estado-vacio">Cargando cumpleaños…</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>No te cuelgues. Un saludo también cuenta 💜</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>No te cuelgues | Anotá tu cumple</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="javascript/script.js" defer></script>
+</head>
+<body>
+    <header class="encabezado">
+        <span class="etiqueta">NINGÚN CUMPLE SIN SALUDO</span>
+        <h1>No te <span>cuelgues.</span></h1>
+        <p>Los cumpleaños de tu grupo, para que no se te pase ninguno.</p>
+    </header>
+
+    <main class="contenedor contenedor-registro">
+        <section class="registro" aria-labelledby="titulo-registro">
+            <h2 id="titulo-registro">Anotá tu cumple 🎂</h2>
+            <p>Dejá tu nickname y la fecha. Nosotros llevamos la cuenta.</p>
+
+            <form id="formulario-cumple">
+                <div class="campo">
+                    <label for="nickname">Tu nickname</label>
+                    <input
+                        type="text"
+                        id="nickname"
+                        name="nickname"
+                        placeholder="Ej: Franco"
+                        maxlength="30"
+                        autocomplete="nickname"
+                        required
+                    >
+                </div>
+
+                <div class="fecha-cumple">
+                    <div class="campo">
+                        <label for="dia">Día</label>
+                        <input
+                            type="number"
+                            id="dia"
+                            name="dia"
+                            placeholder="18"
+                            min="1"
+                            max="31"
+                            step="1"
+                            required
+                        >
+                    </div>
+
+                    <div class="campo">
+                        <label for="mes">Mes</label>
+                        <select id="mes" name="mes" required>
+                            <option value="" disabled selected>
+                                Elegí el mes
+                            </option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <p class="nota-registro">
+                    Tu nickname y cumpleaños serán visibles para
+                    quienes entren a la agenda.
+                </p>
+
+                <button type="submit">Guardar mi cumple</button>
+
+                <p id="mensaje-formulario" role="status"></p>
+            </form>
+
+            <a class="boton-enlace" href="pages/cumpleaños.html">
+                Ver cumpleaños 🎉
+            </a>
+        </section>
+    </main>
+
+    <footer>
+        <p>No te cuelgues. Un saludo también cuenta 💜</p>
+    </footer>
+</body>
+</html>
