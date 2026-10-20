@@ -514,7 +514,13 @@ async function cargarGrupos() {
             const nombre = document.createElement("h3");
             nombre.textContent = grupo.nombre;
 
+           const enlace = document.createElement("a");
+            enlace.className = "boton-enlace";
+            enlace.textContent = "Entrar al grupo";
+            enlace.href = `grupo.html?id=${encodeURIComponent(grupo.id)}`;
+
             tarjeta.appendChild(nombre);
+            tarjeta.appendChild(enlace);
             listaGrupos.appendChild(tarjeta);
         });
     } catch (error) {
@@ -589,3 +595,64 @@ formularioGrupo?.addEventListener("submit", async function (evento) {
 
 // Cargar los grupos al abrir esta página
 cargarGrupos();
+
+// Cargar el grupo indicado en el enlace
+async function cargarDetalleGrupo() {
+    const titulo = document.getElementById("nombre-del-grupo");
+    const estado = document.getElementById("estado-grupo");
+
+    // Ejecutar solo en la página de un grupo
+    if (!titulo || !estado) {
+        return;
+    }
+
+    try {
+        const { data: sesion, error: errorSesion } =
+            await baseDatos.auth.getUser();
+
+        if (errorSesion || !sesion.user) {
+            window.location.replace("../index.html");
+            return;
+        }
+
+        const parametros = new URLSearchParams(window.location.search);
+        const grupoId = parametros.get("id");
+
+        if (!grupoId) {
+            titulo.textContent = "Falta elegir un grupo";
+            estado.textContent = "Volvé a mis grupos y elegí uno.";
+            return;
+        }
+
+        const { data, error } = await baseDatos
+            .from("grupos")
+            .select("id, nombre")
+            .eq("id", grupoId);
+
+        if (error) {
+            throw error;
+        }
+
+        if (data.length === 0) {
+            titulo.textContent = "Grupo no disponible";
+            estado.textContent =
+                "El grupo no existe o tu cuenta no tiene acceso.";
+            return;
+        }
+
+        const grupo = data[0];
+
+        titulo.textContent = grupo.nombre;
+        document.title = `${grupo.nombre} | No te cuelgues`;
+
+        estado.textContent =
+            "¡Ya estás adentro! Acá vamos a sumar los miembros y sus cumpleaños.";
+    } catch (error) {
+        titulo.textContent = "No pudimos cargar el grupo";
+        estado.textContent = "Recargá la página para intentar de nuevo.";
+
+        console.error("Error al cargar el grupo:", error.message);
+    }
+}
+
+cargarDetalleGrupo();
