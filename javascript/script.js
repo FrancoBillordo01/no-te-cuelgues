@@ -350,6 +350,7 @@ formularioLogin?.addEventListener("submit", async function (evento) {
         document.getElementById("login-password").value = "";
 
         aviso.textContent = "¡Sesión iniciada correctamente!";
+        await comprobarSesion();
     } catch (error) {
         aviso.textContent =
             "No pudimos iniciar sesión. Revisá el correo, la contraseña y que hayas confirmado tu cuenta.";
@@ -401,6 +402,27 @@ async function comprobarSesion() {
 
     if (aviso) {
         aviso.textContent = `¡Ya ingresaste con ${data.user.email}!`;
+    }
+}
+
+// Revisar quién inició sesión y elegir qué página mostrar
+async function comprobarSesion() {
+    const { data, error } = await baseDatos.auth.getUser();
+
+    const estaEnInicio = document.getElementById("formulario-login");
+    const estaEnGrupos = document.getElementById("lista-grupos");
+
+    const usuario = error ? null : data.user;
+
+    // Si ya ingresó, llevarlo desde el inicio a sus grupos
+    if (usuario && estaEnInicio) {
+        window.location.replace("pages/grupos.html");
+        return;
+    }
+
+    // Si no ingresó, volver desde grupos al inicio
+    if (!usuario && estaEnGrupos) {
+        window.location.replace("../index.html");
     }
 }
 
