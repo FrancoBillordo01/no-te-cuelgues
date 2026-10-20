@@ -336,3 +336,22 @@ footer {
         min-width: 0;
     }
 }
+
+.boton-google {
+    margin-top: 24px;
+    background-color: #ffffff;
+    color: #202124;
+}
+
+.boton-google:hover {
+    background-color: #e8eaed;
+}
+
+#mensaje-google {
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+#mensaje-google:empty {
+    display: none;
+}

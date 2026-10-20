@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>No te cuelgues | Anotá tu cumple</title>
+    <title>No te cuelgues | Tu grupo, sus momentos</title>
 
     <link rel="stylesheet" href="css/style.css">
 
@@ -13,22 +13,62 @@
 </head>
 <body>
     <header class="encabezado">
-        <span class="etiqueta">NINGÚN CUMPLE SIN SALUDO</span>
+        <span class="etiqueta">TU GRUPO, SUS MOMENTOS</span>
+
         <h1>No te <span>cuelgues.</span></h1>
-        <p>Los cumpleaños de tu grupo, para que no se te pase ninguno.</p>
+
+        <p>Un lugar para tus amigos, sus cumpleaños y los recuerdos que comparten.</p>
     </header>
 
     <main class="contenedor contenedor-registro">
-        <section class="registro" aria-labelledby="titulo-registro">
-            <h2 id="titulo-registro">Anotá tu cumple 🎂</h2>
-            <p>Dejá tu nickname y la fecha. Nosotros llevamos la cuenta.</p>
+        <section class="registro" aria-labelledby="titulo-acceso">
+            <h2 id="titulo-acceso">Volvé a tu grupo 💜</h2>
+            <p>Ingresá con tu correo y contraseña.</p>
+            <button type="button" id="boton-google" class="boton-google">
+    Continuar con Google
+</button>
 
-            <form id="formulario-cumple">
+<p id="mensaje-google" role="status"></p>
+            <form id="formulario-login">
                 <div class="campo">
-                    <label for="nickname">Tu nickname</label>
+                    <label for="login-email">Correo electrónico</label>
+                    <input
+                        type="email"
+                        id="login-email"
+                        name="email"
+                        placeholder="vos@ejemplo.com"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="login-password">Contraseña</label>
+                    <input
+                        type="password"
+                        id="login-password"
+                        name="password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <button type="submit">Iniciar sesión</button>
+
+                <p id="mensaje-login" role="status"></p>
+            </form>
+        </section>
+
+        <section class="registro" aria-labelledby="titulo-cuenta">
+            <h2 id="titulo-cuenta">¿Primera vez por acá? ✨</h2>
+            <p>Creá tu cuenta para empezar a formar tus grupos.</p>
+
+            <form id="formulario-cuenta">
+                <div class="campo">
+                    <label for="cuenta-nickname">Tu nickname</label>
                     <input
                         type="text"
-                        id="nickname"
+                        id="cuenta-nickname"
                         name="nickname"
                         placeholder="Ej: Franco"
                         maxlength="30"
@@ -37,56 +77,39 @@
                     >
                 </div>
 
-                <div class="fecha-cumple">
-                    <div class="campo">
-                        <label for="dia">Día</label>
-                        <input
-                            type="number"
-                            id="dia"
-                            name="dia"
-                            placeholder="18"
-                            min="1"
-                            max="31"
-                            step="1"
-                            required
-                        >
-                    </div>
-
-                    <div class="campo">
-                        <label for="mes">Mes</label>
-                        <select id="mes" name="mes" required>
-                            <option value="" disabled selected>
-                                Elegí el mes
-                            </option>
-                            <option value="1">Enero</option>
-                            <option value="2">Febrero</option>
-                            <option value="3">Marzo</option>
-                            <option value="4">Abril</option>
-                            <option value="5">Mayo</option>
-                            <option value="6">Junio</option>
-                            <option value="7">Julio</option>
-                            <option value="8">Agosto</option>
-                            <option value="9">Septiembre</option>
-                            <option value="10">Octubre</option>
-                            <option value="11">Noviembre</option>
-                            <option value="12">Diciembre</option>
-                        </select>
-                    </div>
+                <div class="campo">
+                    <label for="cuenta-email">Correo electrónico</label>
+                    <input
+                        type="email"
+                        id="cuenta-email"
+                        name="email"
+                        placeholder="vos@ejemplo.com"
+                        autocomplete="username"
+                        required
+                    >
                 </div>
 
-                <p class="nota-registro">
-                    Tu nickname y cumpleaños serán visibles para
-                    quienes entren a la agenda.
+                <div class="campo">
+                    <label for="cuenta-password">Elegí una contraseña</label>
+                    <input
+                        type="password"
+                        id="cuenta-password"
+                        name="password"
+                        minlength="8"
+                        autocomplete="new-password"
+                        aria-describedby="ayuda-password"
+                        required
+                    >
+                </div>
+
+                <p id="ayuda-password" class="nota-registro">
+                    Usá una contraseña de al menos 8 caracteres.
                 </p>
 
-                <button type="submit">Guardar mi cumple</button>
+                <button type="submit">Crear cuenta</button>
 
-                <p id="mensaje-formulario" role="status"></p>
+                <p id="mensaje-cuenta" role="status"></p>
             </form>
-
-            <a class="boton-enlace" href="pages/cumpleaños.html">
-                Ver cumpleaños 🎉
-            </a>
         </section>
     </main>
 

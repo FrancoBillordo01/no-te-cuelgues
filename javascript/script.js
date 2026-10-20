@@ -250,3 +250,141 @@ formulario?.addEventListener("submit", async function (evento) {
 
 // Cargar la agenda cuando se abre la página
 cargarCumpleaños();
+// Formularios de acceso
+const formularioCuenta = document.getElementById("formulario-cuenta");
+const formularioLogin = document.getElementById("formulario-login");
+
+// Crear una cuenta
+formularioCuenta?.addEventListener("submit", async function (evento) {
+    evento.preventDefault();
+
+    const boton = formularioCuenta.querySelector('button[type="submit"]');
+    const aviso = document.getElementById("mensaje-cuenta");
+
+    if (boton.disabled) {
+        return;
+    }
+
+    const nickname = document.getElementById("cuenta-nickname").value.trim();
+    const email = document.getElementById("cuenta-email").value.trim();
+    const password = document.getElementById("cuenta-password").value;
+
+    if (nickname.length === 0 || nickname.length > 30) {
+        aviso.textContent = "Escribí un nickname de entre 1 y 30 caracteres.";
+        return;
+    }
+
+    if (password.length < 8) {
+        aviso.textContent = "La contraseña debe tener al menos 8 caracteres.";
+        return;
+    }
+
+    boton.disabled = true;
+    boton.textContent = "Creando cuenta…";
+    aviso.textContent = "";
+
+    try {
+        const { data, error } = await baseDatos.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    nickname: nickname
+                },
+                emailRedirectTo:
+                    "https://francobillordo01.github.io/no-te-cuelgues/"
+            }
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        formularioCuenta.reset();
+
+        if (data.session) {
+            aviso.textContent = "¡Cuenta creada y sesión iniciada!";
+        } else {
+            aviso.textContent =
+                "Revisá tu correo para confirmar el registro. Si ya tenés cuenta, iniciá sesión.";
+        }
+    } catch (error) {
+        aviso.textContent =
+            "No pudimos completar el registro. Revisá los datos e intentá de nuevo.";
+
+        console.error("Error al crear cuenta:", error.message);
+    } finally {
+        boton.disabled = false;
+        boton.textContent = "Crear cuenta";
+    }
+});
+
+// Iniciar sesión
+formularioLogin?.addEventListener("submit", async function (evento) {
+    evento.preventDefault();
+
+    const boton = formularioLogin.querySelector('button[type="submit"]');
+    const aviso = document.getElementById("mensaje-login");
+
+    if (boton.disabled) {
+        return;
+    }
+
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    boton.disabled = true;
+    boton.textContent = "Ingresando…";
+    aviso.textContent = "";
+
+    try {
+        const { error } = await baseDatos.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        document.getElementById("login-password").value = "";
+
+        aviso.textContent = "¡Sesión iniciada correctamente!";
+    } catch (error) {
+        aviso.textContent =
+            "No pudimos iniciar sesión. Revisá el correo, la contraseña y que hayas confirmado tu cuenta.";
+
+        console.error("Error al iniciar sesión:", error.message);
+    } finally {
+        boton.disabled = false;
+        boton.textContent = "Iniciar sesión";
+    }
+});
+
+// Iniciar sesión con Google
+const botonGoogle = document.getElementById("boton-google");
+
+botonGoogle?.addEventListener("click", async function () {
+    const aviso = document.getElementById("mensaje-google");
+
+    botonGoogle.disabled = true;
+    aviso.textContent = "Abriendo Google…";
+
+    try {
+        const { error } = await baseDatos.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo:
+                    "https://francobillordo01.github.io/no-te-cuelgues/"
+            }
+        });
+
+        if (error) {
+            throw error;
+        }
+    } catch (error) {
+        aviso.textContent = "No pudimos abrir Google. Intentá de nuevo.";
+        console.error("Error con Google:", error.message);
+        botonGoogle.disabled = false;
+    }
+});
