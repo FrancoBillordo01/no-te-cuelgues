@@ -446,3 +446,146 @@ botonSalir?.addEventListener("click", async function () {
         botonSalir.textContent = "Cerrar sesión";
     }
 });
+
+// Mostrar u ocultar el formulario para crear grupos
+const botonCrearGrupo = document.getElementById("boton-crear-grupo");
+const formularioGrupo = document.getElementById("formulario-grupo");
+
+botonCrearGrupo?.addEventListener("click", function () {
+    formularioGrupo.hidden = !formularioGrupo.hidden;
+
+    botonCrearGrupo.textContent = formularioGrupo.hidden
+        ? "Crear un grupo ✨"
+        : "Cancelar";
+
+    if (!formularioGrupo.hidden) {
+        document.getElementById("nombre-grupo").focus();
+    }
+});
+
+// Mostrar un aviso en la lista de grupos
+function mostrarAvisoGrupos(texto) {
+    const listaGrupos = document.getElementById("lista-grupos");
+
+    if (!listaGrupos) {
+        return;
+    }
+
+    const aviso = document.createElement("p");
+    aviso.className = "estado-vacio";
+    aviso.textContent = texto;
+
+    listaGrupos.replaceChildren(aviso);
+}
+
+// Consultar los grupos que permite ver Supabase
+async function cargarGrupos() {
+    const listaGrupos = document.getElementById("lista-grupos");
+
+    if (!listaGrupos) {
+        return;
+    }
+
+    mostrarAvisoGrupos("Cargando tus grupos…");
+
+    try {
+        const { data, error } = await baseDatos
+            .from("grupos")
+            .select("id, nombre")
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            throw error;
+        }
+
+        if (data.length === 0) {
+            mostrarAvisoGrupos(
+                "Todavía no creaste ningún grupo. ¡Armá el primero!"
+            );
+            return;
+        }
+
+        listaGrupos.replaceChildren();
+
+        data.forEach(function (grupo) {
+            const tarjeta = document.createElement("article");
+            tarjeta.className = "tarjeta-grupo";
+
+            const nombre = document.createElement("h3");
+            nombre.textContent = grupo.nombre;
+
+            tarjeta.appendChild(nombre);
+            listaGrupos.appendChild(tarjeta);
+        });
+    } catch (error) {
+        mostrarAvisoGrupos(
+            "No pudimos cargar tus grupos. Recargá para intentar de nuevo."
+        );
+
+        console.error("Error al cargar grupos:", error.message);
+    }
+}
+
+// Guardar un grupo nuevo
+formularioGrupo?.addEventListener("submit", async function (evento) {
+    evento.preventDefault();
+
+    const boton = formularioGrupo.querySelector('button[type="submit"]');
+    const aviso = document.getElementById("mensaje-grupo");
+    const campoNombre = document.getElementById("nombre-grupo");
+    const nombre = campoNombre.value.trim();
+
+    if (boton.disabled) {
+        return;
+    }
+
+    if (nombre.length === 0 || nombre.length > 50) {
+        aviso.textContent = "Escribí un nombre de entre 1 y 50 caracteres.";
+        return;
+    }
+
+    boton.disabled = true;
+    boton.textContent = "Guardando…";
+    aviso.textContent = "";
+
+    try {
+        const { data, error: errorSesion } =
+            await baseDatos.auth.getUser();
+
+        if (errorSesion) {
+            throw errorSesion;
+        }
+
+        if (!data.user) {
+            window.location.replace("../index.html");
+            return;
+        }
+
+        const { error } = await baseDatos
+            .from("grupos")
+            .insert({
+                nombre: nombre,
+                creador_id: data.user.id
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        formularioGrupo.reset();
+        formularioGrupo.hidden = true;
+        botonCrearGrupo.textContent = "Crear un grupo ✨";
+        botonCrearGrupo.focus();
+
+        await cargarGrupos();
+    } catch (error) {
+        aviso.textContent = "No pudimos crear el grupo. Intentá de nuevo.";
+        console.error("Error al crear grupo:", error.message);
+    } finally {
+        boton.disabled = false;
+        boton.textContent = "Guardar grupo";
+    }
+});
+
+// Cargar los grupos al abrir esta página
+cargarGrupos();

@@ -376,3 +376,39 @@ footer {
 #mensaje-sesion:empty {
     display: none;
 }
+
+#boton-crear-grupo {
+    width: auto;
+    margin-top: 24px;
+}
+
+.lista-grupos {
+    margin-top: 26px;
+}
+
+#mensaje-grupo {
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+#mensaje-grupo:empty {
+    display: none;
+}
+
+.lista-grupos {
+    display: grid;
+    gap: 16px;
+}
+
+.tarjeta-grupo {
+    padding: 24px;
+    background-color: #101323;
+    border: 1px solid #353b56;
+    border-radius: 18px;
+}
+
+.tarjeta-grupo h3 {
+    color: #c4b5fd;
+    font-size: 23px;
+    overflow-wrap: anywhere;
+}

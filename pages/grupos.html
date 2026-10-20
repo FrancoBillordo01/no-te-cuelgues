@@ -26,8 +26,9 @@
             Cerrar sesión
         </button>
 
-<p id="mensaje-sesion" role="status"></p>
+        <p id="mensaje-sesion" role="status"></p>
     </header>
+
 
     <main class="contenedor contenedor-agenda">
         <section class="registro" aria-labelledby="titulo-grupos">
@@ -37,6 +38,28 @@
                 Acá vas a encontrar los grupos de los que formás parte.
                 Cada uno tendrá su propia agenda de cumpleaños.
             </p>
+                <button type="button" id="boton-crear-grupo">
+    Crear un grupo ✨
+</button>
+
+            <form id="formulario-grupo" hidden>
+                <div class="campo">
+                    <label for="nombre-grupo">¿Cómo se llama el grupo?</label>
+                    <input
+                        type="text"
+                        id="nombre-grupo"
+                        name="nombre-grupo"
+                        placeholder="Ej: La banda"
+                        minlength="1"
+                        maxlength="50"
+                        required
+                    >
+                </div>
+
+                <button type="submit">Guardar grupo</button>
+
+                <p id="mensaje-grupo" role="status"></p>
+            </form>
 
             <div id="lista-grupos" class="lista-grupos">
                 <p class="estado-vacio">
