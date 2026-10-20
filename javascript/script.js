@@ -413,3 +413,36 @@ async function comprobarSesion() {
 }
 
 comprobarSesion();
+
+// Cerrar la sesión actual
+const botonSalir = document.getElementById("boton-salir");
+
+botonSalir?.addEventListener("click", async function () {
+    const aviso = document.getElementById("mensaje-sesion");
+
+    if (botonSalir.disabled) {
+        return;
+    }
+
+    botonSalir.disabled = true;
+    botonSalir.textContent = "Saliendo…";
+    aviso.textContent = "";
+
+    try {
+        const { error } = await baseDatos.auth.signOut({
+            scope: "local"
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        window.location.replace("../index.html");
+    } catch (error) {
+        aviso.textContent = "No pudimos cerrar la sesión. Intentá de nuevo.";
+        console.error("Error al cerrar sesión:", error.message);
+
+        botonSalir.disabled = false;
+        botonSalir.textContent = "Cerrar sesión";
+    }
+});

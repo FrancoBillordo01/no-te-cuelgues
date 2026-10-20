@@ -355,3 +355,24 @@ footer {
 #mensaje-google:empty {
     display: none;
 }
+
+.boton-salir {
+    width: auto;
+    margin-top: 24px;
+    background-color: transparent;
+    border: 1px solid #70608f;
+    color: #e3dcf5;
+}
+
+.boton-salir:hover {
+    background-color: #231a3d;
+}
+
+#mensaje-sesion {
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+#mensaje-sesion:empty {
+    display: none;
+}
