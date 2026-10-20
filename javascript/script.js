@@ -390,38 +390,24 @@ botonGoogle?.addEventListener("click", async function () {
     }
 });
 
-// Comprobar si hay una sesión iniciada
+// Revisar la sesión y elegir qué página mostrar
 async function comprobarSesion() {
     const { data, error } = await baseDatos.auth.getUser();
 
-    const aviso = document.getElementById("mensaje-login");
-
-    if (error || !data.user) {
+    if (error) {
+        console.error("No se pudo comprobar la sesión:", error.message);
         return;
     }
-
-    if (aviso) {
-        aviso.textContent = `¡Ya ingresaste con ${data.user.email}!`;
-    }
-}
-
-// Revisar quién inició sesión y elegir qué página mostrar
-async function comprobarSesion() {
-    const { data, error } = await baseDatos.auth.getUser();
 
     const estaEnInicio = document.getElementById("formulario-login");
     const estaEnGrupos = document.getElementById("lista-grupos");
 
-    const usuario = error ? null : data.user;
-
-    // Si ya ingresó, llevarlo desde el inicio a sus grupos
-    if (usuario && estaEnInicio) {
+    if (data.user && estaEnInicio) {
         window.location.replace("pages/grupos.html");
         return;
     }
 
-    // Si no ingresó, volver desde grupos al inicio
-    if (!usuario && estaEnGrupos) {
+    if (!data.user && estaEnGrupos) {
         window.location.replace("../index.html");
     }
 }
