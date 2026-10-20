@@ -388,3 +388,20 @@ botonGoogle?.addEventListener("click", async function () {
         botonGoogle.disabled = false;
     }
 });
+
+// Comprobar si hay una sesión iniciada
+async function comprobarSesion() {
+    const { data, error } = await baseDatos.auth.getUser();
+
+    const aviso = document.getElementById("mensaje-login");
+
+    if (error || !data.user) {
+        return;
+    }
+
+    if (aviso) {
+        aviso.textContent = `¡Ya ingresaste con ${data.user.email}!`;
+    }
+}
+
+comprobarSesion();
