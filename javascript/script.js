@@ -645,8 +645,10 @@ async function cargarDetalleGrupo() {
         titulo.textContent = grupo.nombre;
         document.title = `${grupo.nombre} | No te cuelgues`;
 
-        estado.textContent =
-            "¡Ya estás adentro! Acá vamos a sumar los miembros y sus cumpleaños.";
+        estado.textContent = "Los cumpleaños de quienes forman parte del grupo.";
+
+        await cargarCumplesDelGrupo(grupo.id);
+
     } catch (error) {
         titulo.textContent = "No pudimos cargar el grupo";
         estado.textContent = "Recargá la página para intentar de nuevo.";
@@ -804,3 +806,147 @@ async function prepararPerfil() {
 }
 
 prepararPerfil();
+
+// Consultar y mostrar los cumpleaños de un grupo
+async function cargarCumplesDelGrupo(grupoId) {
+    const contenedor = document.getElementById("lista-cumples-grupo");
+
+    if (!contenedor) {
+        return;
+    }
+
+    function avisar(texto) {
+        const aviso = document.createElement("p");
+        aviso.className = "estado-vacio";
+        aviso.textContent = texto;
+
+        contenedor.replaceChildren(aviso);
+    }
+
+    avisar("Cargando los cumpleaños del grupo…");
+
+    try {
+        // Primero consultar quiénes pertenecen al grupo
+        const { data: miembros, error: errorMiembros } = await baseDatos
+            .from("miembros_grupo")
+            .select("usuario_id")
+            .eq("grupo_id", grupoId);
+
+        if (errorMiembros) {
+            throw errorMiembros;
+        }
+
+        if (miembros.length === 0) {
+            avisar("No hay miembros visibles para tu cuenta.");
+            return;
+        }
+
+        const usuarios = miembros.map(function (miembro) {
+            return miembro.usuario_id;
+        });
+
+        // Después buscar los perfiles de esos miembros
+        const { data: perfiles, error: errorPerfiles } = await baseDatos
+            .from("perfiles")
+            .select("id, nickname, dia, mes")
+            .in("id", usuarios);
+
+        if (errorPerfiles) {
+            throw errorPerfiles;
+        }
+
+        if (perfiles.length === 0) {
+            avisar("Los miembros todavía no completaron sus perfiles.");
+            return;
+        }
+
+        const cumpleaños = perfiles.map(function (perfil) {
+            return {
+                ...perfil,
+                diasRestantes: calcularDiasRestantes(
+                    perfil.dia,
+                    perfil.mes
+                )
+            };
+        });
+
+        cumpleaños.sort(function (a, b) {
+            return a.diasRestantes - b.diasRestantes;
+        });
+
+        contenedor.replaceChildren();
+
+        const menorCantidadDias = cumpleaños[0].diasRestantes;
+
+        cumpleaños.forEach(function (registro) {
+            const tarjeta = document.createElement("article");
+            tarjeta.className = "tarjeta-cumple";
+
+            const informacion = document.createElement("div");
+            informacion.className = "cumple-info";
+
+            if (registro.diasRestantes === menorCantidadDias) {
+                tarjeta.classList.add("proximo");
+
+                const etiqueta = document.createElement("span");
+                etiqueta.className = "cumple-etiqueta";
+                etiqueta.textContent = registro.diasRestantes === 0
+                    ? "HOY SE FESTEJA"
+                    : "PRÓXIMO CUMPLE";
+
+                informacion.appendChild(etiqueta);
+            }
+
+            const nombre = document.createElement("h3");
+            nombre.textContent = registro.nickname;
+
+            const fecha = document.createElement("p");
+            fecha.className = "cumple-fecha";
+            fecha.textContent =
+                `${registro.dia} de ${meses[registro.mes - 1]}`;
+
+            const contador = document.createElement("div");
+            contador.className = "cumple-contador";
+
+            const numero = document.createElement("strong");
+            const detalle = document.createElement("span");
+
+            if (registro.diasRestantes === 0) {
+                tarjeta.classList.add("cumple-hoy");
+                numero.textContent = "HOY";
+                detalle.textContent = "¡Mandale un saludo! 🎂";
+            } else {
+                numero.textContent = registro.diasRestantes;
+                detalle.textContent = registro.diasRestantes === 1
+                    ? "día para su cumple"
+                    : "días para su cumple";
+            }
+
+            informacion.appendChild(nombre);
+            informacion.appendChild(fecha);
+
+            contador.appendChild(numero);
+            contador.appendChild(detalle);
+
+            tarjeta.appendChild(informacion);
+            tarjeta.appendChild(contador);
+
+            contenedor.appendChild(tarjeta);
+        });
+
+        const pendientes = miembros.length - perfiles.length;
+
+        if (pendientes > 0) {
+            const nota = document.createElement("p");
+            nota.textContent = pendientes === 1
+                ? "Un miembro todavía no completó su perfil."
+                : `${pendientes} miembros todavía no completaron sus perfiles.`;
+
+            contenedor.appendChild(nota);
+        }
+    } catch (error) {
+        avisar("No pudimos cargar los cumpleaños. Recargá para intentar de nuevo.");
+
+        console.error("Error al cargar cumpleaños del grupo:", error.message);
+    }
+}

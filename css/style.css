@@ -413,3 +413,8 @@ footer {
     overflow-wrap: anywhere;
 }
 
+.lista-cumples-grupo {
+    display: grid;
+    gap: 16px;
+    margin-top: 26px;
+}
