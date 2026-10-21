@@ -301,13 +301,13 @@ formularioCuenta?.addEventListener("submit", async function (evento) {
         }
 
         formularioCuenta.reset();
-
-        if (data.session) {
-            aviso.textContent = "¡Cuenta creada y sesión iniciada!";
-        } else {
-            aviso.textContent =
-                "Revisá tu correo para confirmar el registro. Si ya tenés cuenta, iniciá sesión.";
-        }
+    if (data.session) {
+        aviso.textContent = "¡Cuenta creada y sesión iniciada!";
+        await comprobarSesion();
+    } else {
+        aviso.textContent =
+            "Revisá tu correo para confirmar el registro. Si ya tenés cuenta, iniciá sesión.";
+    }
     } catch (error) {
         aviso.textContent =
             "No pudimos completar el registro. Revisá los datos e intentá de nuevo.";
@@ -391,19 +391,45 @@ botonGoogle?.addEventListener("click", async function () {
 });
 
 // Revisar la sesión y elegir qué página mostrar
+// Revisar la sesión y recordar una invitación pendiente
 async function comprobarSesion() {
-    const { data, error } = await baseDatos.auth.getUser();
-
-    if (error) {
-        console.error("No se pudo comprobar la sesión:", error.message);
-        return;
-    }
-
     const estaEnInicio = document.getElementById("formulario-login");
     const estaEnGrupos = document.getElementById("lista-grupos");
 
+    if (estaEnInicio) {
+        const parametros = new URLSearchParams(window.location.search);
+        const token = parametros.get("invitacion");
+
+        if (esIdentificadorValido(token)) {
+            localStorage.setItem("invitacion-pendiente", token);
+        }
+    }
+
+    const { data, error } = await baseDatos.auth.getUser();
+
+    if (error) {
+        if (error.name === "AuthSessionMissingError") {
+            if (estaEnGrupos) {
+                window.location.replace("../index.html");
+            }
+        } else {
+            console.error("Error al comprobar sesión:", error.message);
+        }
+
+        return;
+    }
+
     if (data.user && estaEnInicio) {
-        window.location.replace("pages/grupos.html");
+        const pendiente = localStorage.getItem("invitacion-pendiente");
+
+        if (esIdentificadorValido(pendiente)) {
+            window.location.replace(
+                `pages/invitacion.html?token=${encodeURIComponent(pendiente)}`
+            );
+        } else {
+            window.location.replace("pages/grupos.html");
+        }
+
         return;
     }
 
@@ -627,7 +653,7 @@ async function cargarDetalleGrupo() {
         const { data, error } = await baseDatos
             .from("grupos")
          .select("id, nombre, creador_id")
-            .eq("id", grupoId);
+        .eq("id", grupoId);
 
         if (error) {
             throw error;
@@ -786,6 +812,15 @@ async function prepararPerfil() {
                 }
 
                 aviso.textContent = "¡Listo! Tu perfil quedó guardado 💜";
+
+                const parametros = new URLSearchParams(window.location.search);
+                const grupoDestino = parametros.get("grupo");
+
+                if (esIdentificadorValido(grupoDestino)) {
+                    window.location.replace(
+                        `grupo.html?id=${encodeURIComponent(grupoDestino)}`
+                    );
+}
             } catch (error) {
                 aviso.textContent =
                     "No pudimos guardar tu perfil. Intentá de nuevo.";
@@ -1012,3 +1047,110 @@ function prepararInvitacion(grupo, usuarioId) {
         }
     });
 }
+
+// Comprobar el formato de los identificadores UUID
+function esIdentificadorValido(valor) {
+    return typeof valor === "string" &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(valor);
+}
+
+// Preparar la página de invitación
+async function prepararPaginaInvitacion() {
+    const boton = document.getElementById("boton-aceptar-invitacion");
+
+    if (!boton) {
+        return;
+    }
+
+    const estado = document.getElementById("estado-invitacion");
+    const acceso = document.getElementById("acceso-invitacion");
+    const cancelar = document.getElementById("cancelar-invitacion");
+
+    const parametros = new URLSearchParams(window.location.search);
+    const token = parametros.get("token");
+
+    cancelar?.addEventListener("click", function () {
+        localStorage.removeItem("invitacion-pendiente");
+    });
+
+    if (!esIdentificadorValido(token)) {
+        estado.textContent =
+            "El enlace está incompleto o tiene un formato incorrecto.";
+        boton.hidden = true;
+        return;
+    }
+
+    estado.textContent = "Comprobando tu sesión…";
+
+    try {
+        const { data, error } = await baseDatos.auth.getUser();
+
+        if (error && error.name !== "AuthSessionMissingError") {
+            throw error;
+        }
+
+        if (!data.user) {
+            estado.textContent =
+                "Primero ingresá o creá tu cuenta. Después volverás acá para aceptar.";
+
+            acceso.href =
+                `../index.html?invitacion=${encodeURIComponent(token)}`;
+
+            acceso.hidden = false;
+            boton.hidden = true;
+            return;
+        }
+
+        estado.textContent =
+            `Ingresaste con ${data.user.email}. Al aceptar, compartirás tu perfil con el grupo.`;
+
+        boton.disabled = false;
+
+        boton.addEventListener("click", async function () {
+            if (boton.disabled) {
+                return;
+            }
+
+            boton.disabled = true;
+            boton.textContent = "Uniéndote…";
+            estado.textContent = "";
+
+            try {
+                const { data: grupoId, error: errorAceptar } =
+                    await baseDatos.rpc("aceptar_invitacion", {
+                        p_token: token
+                    });
+
+                if (errorAceptar) {
+                    throw errorAceptar;
+                }
+
+                if (!esIdentificadorValido(grupoId)) {
+                    throw new Error("La respuesta no contiene un grupo válido.");
+                }
+
+                localStorage.removeItem("invitacion-pendiente");
+
+                // Completar o confirmar el perfil antes de ir al grupo
+                window.location.replace(
+                    `perfil.html?grupo=${encodeURIComponent(grupoId)}`
+                );
+            } catch (error) {
+                estado.textContent =
+                    "No pudimos aceptar la invitación. Puede haber vencido o sido reemplazada.";
+
+                console.error("Error al aceptar invitación:", error.message);
+
+                boton.disabled = false;
+                boton.textContent = "Intentar de nuevo";
+            }
+        });
+    } catch (error) {
+        estado.textContent =
+            "No pudimos comprobar tu sesión. Recargá para intentar de nuevo.";
+
+        console.error("Error al preparar invitación:", error.message);
+    }
+}
+
+prepararPaginaInvitacion();

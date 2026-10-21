@@ -441,3 +441,17 @@ footer {
 #mensaje-invitacion:empty {
     display: none;
 }
+
+#estado-invitacion {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+#boton-aceptar-invitacion {
+    margin-top: 20px;
+}
+
+/* Mantener ocultos los elementos con el atributo hidden */
+[hidden] {
+    display: none !important;
+}
