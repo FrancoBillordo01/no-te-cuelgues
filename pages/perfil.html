@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mi perfil | No te cuelgues</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+        defer
+    ></script>
+    <script src="../javascript/script.js" defer></script>
+</head>
+<body>
+    <header class="encabezado">
+        <span class="etiqueta">EMPECEMOS POR VOS</span>
+
+        <h1>Tu día también <span>cuenta.</span></h1>
+
+        <p>Elegí cómo querés aparecer y anotá tu cumpleaños.</p>
+    </header>
+
+    <main class="contenedor contenedor-registro">
+        <section class="registro" aria-labelledby="titulo-perfil">
+            <h2 id="titulo-perfil">Mi perfil 💜</h2>
+
+            <p>Podés volver acá para actualizar tus datos.</p>
+
+            <form id="formulario-perfil">
+                <div class="campo">
+                    <label for="perfil-nickname">Tu nickname</label>
+                    <input
+                        type="text"
+                        id="perfil-nickname"
+                        name="nickname"
+                        placeholder="Ej: Franco"
+                        maxlength="30"
+                        autocomplete="nickname"
+                        required
+                    >
+                </div>
+
+                <div class="fecha-cumple">
+                    <div class="campo">
+                        <label for="perfil-dia">Día</label>
+                        <input
+                            type="number"
+                            id="perfil-dia"
+                            name="dia"
+                            placeholder="10"
+                            min="1"
+                            max="31"
+                            step="1"
+                            required
+                        >
+                    </div>
+
+                    <div class="campo">
+                        <label for="perfil-mes">Mes</label>
+                        <select id="perfil-mes" name="mes" required>
+                            <option value="" disabled selected>
+                                Elegí el mes
+                            </option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" disabled>
+                    Guardar mi perfil
+                </button>
+
+                <p id="mensaje-perfil" role="status">
+                    El guardado estará disponible en el próximo paso.
+                </p>
+            </form>
+
+            <a class="boton-enlace" href="grupos.html">
+                Volver a mis grupos
+            </a>
+        </section>
+    </main>
+
+    <footer>
+        <p>No te cuelgues. Un saludo también cuenta 💜</p>
+    </footer>
+</body>
+</html>

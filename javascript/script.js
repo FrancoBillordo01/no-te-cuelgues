@@ -656,3 +656,151 @@ async function cargarDetalleGrupo() {
 }
 
 cargarDetalleGrupo();
+
+// Preparar la página Mi perfil
+async function prepararPerfil() {
+    const formularioPerfil = document.getElementById("formulario-perfil");
+
+    // Ejecutar solo en la página del perfil
+    if (!formularioPerfil) {
+        return;
+    }
+
+    const campoNickname = document.getElementById("perfil-nickname");
+    const campoDia = document.getElementById("perfil-dia");
+    const campoMes = document.getElementById("perfil-mes");
+    const aviso = document.getElementById("mensaje-perfil");
+    const boton = formularioPerfil.querySelector('button[type="submit"]');
+
+    boton.disabled = true;
+    aviso.textContent = "Cargando tu perfil…";
+
+    // Evitar envíos mientras se prepara la página
+    formularioPerfil.addEventListener("submit", function (evento) {
+        evento.preventDefault();
+    });
+
+    try {
+        const { data: sesion, error: errorSesion } =
+            await baseDatos.auth.getUser();
+
+        if (errorSesion || !sesion.user) {
+            window.location.replace("../index.html");
+            return;
+        }
+
+        const usuario = sesion.user;
+
+        const { data, error } = await baseDatos
+            .from("perfiles")
+            .select("nickname, dia, mes")
+            .eq("id", usuario.id);
+
+        if (error) {
+            throw error;
+        }
+
+        if (data.length > 0) {
+            const perfil = data[0];
+
+            campoNickname.value = perfil.nickname;
+            campoDia.value = perfil.dia;
+            campoMes.value = perfil.mes;
+
+            aviso.textContent = "Tus datos están listos para editar.";
+        } else {
+            campoNickname.value = usuario.user_metadata?.nickname || "";
+
+            aviso.textContent = "Completá tus datos para crear tu perfil.";
+        }
+
+        // Guardar el perfil
+        formularioPerfil.addEventListener("submit", async function (evento) {
+            evento.preventDefault();
+
+            if (boton.disabled) {
+                return;
+            }
+
+            const nickname = campoNickname.value.trim();
+            const dia = Number(campoDia.value);
+            const mes = Number(campoMes.value);
+
+            if (nickname.length === 0 || nickname.length > 30) {
+                aviso.textContent =
+                    "Escribí un nickname de entre 1 y 30 caracteres.";
+                return;
+            }
+
+            const fechaPrueba = new Date(2000, mes - 1, dia);
+
+            if (
+                !Number.isInteger(dia) ||
+                !Number.isInteger(mes) ||
+                mes < 1 ||
+                mes > 12 ||
+                fechaPrueba.getMonth() !== mes - 1 ||
+                fechaPrueba.getDate() !== dia
+            ) {
+                aviso.textContent =
+                    "Esa fecha no existe. Revisá el día y el mes.";
+                return;
+            }
+
+            boton.disabled = true;
+            boton.textContent = "Guardando…";
+            aviso.textContent = "";
+
+            try {
+                // Confirmar que sigue siendo la misma cuenta
+                const { data: sesionActual, error: errorActual } =
+                    await baseDatos.auth.getUser();
+
+                if (
+                    errorActual ||
+                    !sesionActual.user ||
+                    sesionActual.user.id !== usuario.id
+                ) {
+                    aviso.textContent =
+                        "Tu sesión cambió. Recargá la página para continuar.";
+                    return;
+                }
+
+                const { error: errorGuardar } = await baseDatos
+                    .from("perfiles")
+                    .upsert(
+                        {
+                            id: usuario.id,
+                            nickname: nickname,
+                            dia: dia,
+                            mes: mes
+                        },
+                        { onConflict: "id" }
+                    );
+
+                if (errorGuardar) {
+                    throw errorGuardar;
+                }
+
+                aviso.textContent = "¡Listo! Tu perfil quedó guardado 💜";
+            } catch (error) {
+                aviso.textContent =
+                    "No pudimos guardar tu perfil. Intentá de nuevo.";
+
+                console.error("Error al guardar perfil:", error.message);
+            } finally {
+                boton.disabled = false;
+                boton.textContent = "Guardar mi perfil";
+            }
+        });
+
+        boton.disabled = false;
+    } catch (error) {
+        aviso.textContent =
+            "No pudimos cargar tu perfil. Recargá para intentar de nuevo.";
+
+        console.error("Error al cargar perfil:", error.message);
+    }
+}
+
+prepararPerfil();
