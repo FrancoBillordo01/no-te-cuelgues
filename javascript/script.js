@@ -626,7 +626,7 @@ async function cargarDetalleGrupo() {
 
         const { data, error } = await baseDatos
             .from("grupos")
-            .select("id, nombre")
+         .select("id, nombre, creador_id")
             .eq("id", grupoId);
 
         if (error) {
@@ -641,6 +641,7 @@ async function cargarDetalleGrupo() {
         }
 
         const grupo = data[0];
+        prepararInvitacion(grupo, sesion.user.id);
 
         titulo.textContent = grupo.nombre;
         document.title = `${grupo.nombre} | No te cuelgues`;
@@ -949,4 +950,65 @@ async function cargarCumplesDelGrupo(grupoId) {
 
         console.error("Error al cargar cumpleaños del grupo:", error.message);
     }
+}
+
+// Mostrar la opción de invitar solo al creador
+function prepararInvitacion(grupo, usuarioId) {
+    const acciones = document.getElementById("acciones-invitacion");
+    const boton = document.getElementById("boton-invitar");
+
+    if (!acciones || !boton || grupo.creador_id !== usuarioId) {
+        return;
+    }
+
+    acciones.hidden = false;
+
+    boton.addEventListener("click", async function () {
+        const aviso = document.getElementById("mensaje-invitacion");
+        const resultado = document.getElementById("resultado-invitacion");
+        const campoEnlace = document.getElementById("enlace-invitacion");
+
+        if (boton.disabled) {
+            return;
+        }
+
+        boton.disabled = true;
+        boton.textContent = "Generando…";
+        aviso.textContent = "";
+        resultado.hidden = true;
+
+        try {
+            const { data: token, error } = await baseDatos.rpc(
+                "crear_invitacion",
+                { p_grupo_id: grupo.id }
+            );
+
+            if (error) {
+                throw error;
+            }
+
+            const enlace = new URL(
+                "invitacion.html",
+                window.location.href
+            );
+
+            enlace.searchParams.set("token", token);
+
+            campoEnlace.value = enlace.href;
+            resultado.hidden = false;
+
+            aviso.textContent = "¡Invitación generada! Vence en 7 días.";
+
+            campoEnlace.focus();
+            campoEnlace.select();
+        } catch (error) {
+            aviso.textContent =
+                "No pudimos generar la invitación. Intentá de nuevo.";
+
+            console.error("Error al generar invitación:", error.message);
+        } finally {
+            boton.disabled = false;
+            boton.textContent = "Generar nueva invitación";
+        }
+    });
 }

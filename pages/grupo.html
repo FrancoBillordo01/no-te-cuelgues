@@ -25,6 +25,31 @@
         <a class="boton-enlace" href="grupos.html">
             Volver a mis grupos
         </a>
+
+        <div id="acciones-invitacion" hidden>
+    <button type="button" id="boton-invitar">
+        Generar invitación
+    </button>
+
+    <p class="nota-registro">
+        El enlace dura 7 días. Generar otro reemplaza al anterior.
+        Quien lo reciba podrá unirse con su cuenta.
+    </p>
+
+    <div id="resultado-invitacion" hidden>
+        <label for="enlace-invitacion">
+            Copiá este enlace para invitar
+        </label>
+
+        <input
+            type="text"
+            id="enlace-invitacion"
+            readonly
+        >
+    </div>
+
+    <p id="mensaje-invitacion" role="status"></p>
+</div>
     </header>
 
     <main class="contenedor contenedor-agenda">

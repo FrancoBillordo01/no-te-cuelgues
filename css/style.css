@@ -418,3 +418,26 @@ footer {
     gap: 16px;
     margin-top: 26px;
 }
+
+#acciones-invitacion {
+    max-width: 520px;
+    margin: 24px auto 0;
+}
+
+#acciones-invitacion .nota-registro {
+    margin-top: 12px;
+}
+
+#resultado-invitacion label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+#mensaje-invitacion {
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+#mensaje-invitacion:empty {
+    display: none;
+}
